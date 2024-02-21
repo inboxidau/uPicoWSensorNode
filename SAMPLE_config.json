@@ -1,0 +1,15 @@
+{
+    "WIFI_SSID": "Network2.4",
+    "WIFI_PASSWORD": "your password",
+    "MQTT_BROKER": "homebridge.local",
+    "MQTT_PORT": 8883,
+    "MQTT_CA_CERTS": "/ca.crt",
+    "LOG_SENSOR_DATA": "False",
+    "LOG_SENSOR_DATA_FILE": "data.log",    
+    "MAKERVERSE_NANO_POWER_TIMER_HAT": "False",
+    "MQTT_TOPIC_distance":     "carpark01/picodev_board/distance", 
+    "MQTT_TOPIC_occupancy":    "carpark01/picodev_board/occupancy",
+    "MQTT_USERNAME": "IoT",
+    "MQTT_PASSWORD": "your MQTT password",
+    "OCCUPANCY_DISTANCE": 900
+}

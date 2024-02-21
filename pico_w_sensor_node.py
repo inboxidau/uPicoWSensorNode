@@ -6,17 +6,30 @@ import network
 import time
 from umqtt.robust import MQTTClient
 
+POWERDOWN = machine.Pin(22, machine.Pin.OUT) # setting this pin High will remove power, and wait for the next interval for Makerverse Nano Power Timer HAT
+
 class UPicoWSensorNode:
     
+    # Function to write data to a JSON file
+    def write_to_json(self, file_path, data):
+        try:
+            self.log.log_message("opening {} ".format(file_path), LogLevel.DEBUG)
+            with open(file_path, 'w') as file:
+                ujson.dump(data, file)
+            self.log.log_message("Data successfully written to {}".format(file_path), LogLevel.DEBUG)
+        except Exception as e:
+            exception_details = repr(e)
+            self.log.log_message("write_to_json: {} ".format(exception_details), LogLevel.DEBUG)
+    
     def connect_broker(self):
-        self.log.log_message("connect_broker method of "+ self.__class__.__name__ +" called", LogLevel.DEBUG)
+        self.log.log_message("{}.connect_broker() called".format( self.__class__.__name__ ), LogLevel.DEBUG)
         self.log.log_message("Connecting to MQTT:{}:{}".format(self.MQTT_BROKER,self.MQTT_PORT), LogLevel.DEBUG)
         self.mqtt_client.connect()
-        self.log.log_message("Connected to MQTT:{}:{}".format(self.MQTT_BROKER,self.MQTT_PORT))
+        self.log.log_message("MQTT:{}:{} Connected.".format(self.MQTT_BROKER,self.MQTT_PORT), LogLevel.DEBUG)
         return None
     
     def initialize_broker(self):
-        self.log.log_message("Initialize_broker method of "+ self.__class__.__name__ +" called", LogLevel.DEBUG)        
+        self.log.log_message("{}.initialize_broker() called ".format(self.__class__.__name__ ), LogLevel.DEBUG)        
 #         # SSL Context
 #         ssl_params = {"ca_certs": self.MQTT_CA_CERTS}
         self.mqtt_client = MQTTClient(self.guid, self.MQTT_BROKER, port=self.MQTT_PORT,user=self.MQTT_USERNAME, password=self.MQTT_PASSWORD,ssl=True)
@@ -39,14 +52,14 @@ class UPicoWSensorNode:
     def connect_to_wifi(self):
         # Check if already connected
         if self.wifi.status() != 3:
-            self.log.log_message("re-connecting to Wi-Fi...")
+            self.log.log_message("re-connecting to {}...".format(WIFI_SSID), LogLevel.INFO)
             self.wifi.connect(WIFI_SSID, WIFI_PASSWORD)
             
             # Wait for connection
             while not self.wifi.isconnected():
                 pass
             
-            self.log.log_message("Connected to Wi-Fi")
+            self.log.log_message("Connected to {}.".format(WIFI_SSID), LogLevel.INFO)
         
         
     def generate_guid(self):
@@ -59,13 +72,12 @@ class UPicoWSensorNode:
         try:
             with open(file_path, 'r') as file:
                 config_data = ujson.load(file)
-            self.log.log_message("Config file loaded")    
+            self.log.log_message("{} config loaded".format(file_path))    
             return config_data
         except Exception as e:
             exception_details = repr(e)
-            msg = "Unable to load config ("+file_path+")" + exception_details
-            self.log.log_message(msg, LogLevel.ERROR)
-            raise ValueError(msg)
+            self.log.log_message("Unable to load config {} {}".format(file_path,exception_details), LogLevel.ERROR)
+            raise ValueError(exception_details)
             return None
     
     def __init__(self, log, config_path='UPicoWSensorNode.json'):
@@ -85,12 +97,16 @@ class UPicoWSensorNode:
             self.MQTT_USERNAME = self.config.get('MQTT_USERNAME', '')
             self.MQTT_PASSWORD = self.config.get('MQTT_PASSWORD', 0)
             self.MQTT_CA_CERTS = self.config.get('MQTT_CA_CERTS', '')
+            self.MAKERVERSE_NANO_POWER_TIMER_HAT = self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT', False)
+            self.LOG_SENSOR_DATA = self.config.get('LOG_SENSOR_DATA', 'False')
+            self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'aaaaaaaaaaaaaaaaaaaa.dat')
+            self.log.log_message("SENSOR LOG {} {}".format(self.LOG_SENSOR_DATA,self.LOG_SENSOR_DATA_FILE), LogLevel.DEBUG)
             
             self.log.log_message("UPicoWSensorNode Config values applied", LogLevel.DEBUG)   
         else:
             self.log.log_message("UPicoWSensorNode Failed to load config file.", LogLevel.ERROR)
 
-        self.log.log_message("UPicoWSensorNode initialized device with guid "+ self.guid, LogLevel.DEBUG)
+        self.log.log_message("UPicoWSensorNode initialized device with guid {}".format(self.guid), LogLevel.DEBUG)
 
     def main(self):
         #initialize wifi
@@ -104,10 +120,9 @@ class UPicoWSensorNode:
             if self.wifi.status() < 0 or self.wifi.status() >= 3:
                 break
             self.max_wait -= 1
-            self.log.log_message('waiting for connection to '+self.WIFI_SSID, LogLevel.DEBUG)
+            self.log.log_message('waiting for connection to {}'.format(self.WIFI_SSID), LogLevel.DEBUG)
             time.sleep(1)
 
-        self.log.log_message('Initial connection complete')
         if self.wifi.status() != 3:
             raise RuntimeError('network connection failed.', LogLevel.ERROR)
         else:
@@ -130,14 +145,15 @@ class UPicoWSensorNode:
                           self.post_sensor_data()
                     finally:
                           self.disconnect_broker()
-                          self.log.log_message("Sleeping", LogLevel.DEBUG)
-                          time.sleep(15)                           
+                          self.log.log_message("MQTT: Disconnected.", LogLevel.DEBUG)
+                          
+                    if self.MAKERVERSE_NANO_POWER_TIMER_HAT == "True":
+                        self.log.log_message("Power down HAT.", LogLevel.INFO)
+                        POWERDOWN.on()
+                        
+                    self.log.log_message("Sleeping", LogLevel.DEBUG)
+                    time.sleep(15)
                     
-#                     logger.log_message ("Power Off")
-#                     DONE.on() # Assert DONE signal; powers down Pico for Makerverse Nano Power Timer HAT
-#                     logger.log_message("Power Off 2")
-#                     Pin(22, Pin.OUT)
-
             except Exception as e:
                 #sys.print_exception(e)  # Print basic exception information
                 exception_details = repr(e)
