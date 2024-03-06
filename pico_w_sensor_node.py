@@ -56,12 +56,20 @@ class UPicoWSensorNode:
             self.wifi.connect(WIFI_SSID, WIFI_PASSWORD)
             
             # Wait for connection
-            while not self.wifi.isconnected():
-                pass
-            
-            self.log.log_message("Connected to {}.".format(WIFI_SSID), LogLevel.INFO)
-        
-        
+            self.max_wait = 10
+            while self.max_wait > 0:
+                if self.wifi.isconnected():
+                    break
+                raise RuntimeError('network connection failed.', LogLevel.ERROR)
+                self.max_wait -= 1
+                self.log.log_message('waiting for re-connection to {}'.format(self.WIFI_SSID), LogLevel.DEBUG)
+                sleep(1)
+
+            if self.wifi.status() != 3:
+                raise RuntimeError('network re-connection failed.', LogLevel.ERROR)
+            else:
+                self.log.log_message("Reconnected to {} channel {} with address {}".format(self.WIFI_SSID,self.wifi.config('channel'), self.wifi.ifconfig()[0]), LogLevel.INFO)
+
     def generate_guid(self):
         # Generate a unique ID using the MAC address of the device
         mac = ubinascii.hexlify(machine.unique_id()).decode('utf-8')
@@ -107,7 +115,7 @@ class UPicoWSensorNode:
             self.log.log_message("UPicoWSensorNode Failed to load config file.", LogLevel.ERROR)
 
         self.log.log_message("UPicoWSensorNode initialized device with guid {}".format(self.guid), LogLevel.DEBUG)
-
+#self.log.log_message('waiting for connection to {}'.format(self.WIFI_SSID), LogLevel.DEBUG)
     def main(self):
         #initialize wifi
         self.wifi = network.WLAN(network.STA_IF)
@@ -120,7 +128,7 @@ class UPicoWSensorNode:
             if self.wifi.status() < 0 or self.wifi.status() >= 3:
                 break
             self.max_wait -= 1
-            self.log.log_message('waiting for connection to {}'.format(self.WIFI_SSID), LogLevel.DEBUG)
+            self.log.log_message('waiting {} for connection to {}'.format(self.max_wait, self.WIFI_SSID), LogLevel.DEBUG)
             time.sleep(1)
 
         if self.wifi.status() != 3:
@@ -150,6 +158,14 @@ class UPicoWSensorNode:
                     if self.MAKERVERSE_NANO_POWER_TIMER_HAT == "True":
                         self.log.log_message("Power down HAT.", LogLevel.INFO)
                         POWERDOWN.on()
+                        count = 0
+                        max_count = 30
+                        while True:
+                            if count >= max_count:
+                                break  # Exit the loop after reaching maximum count
+                            self.log.log_message("count {} sheep.".format(count), LogLevel.DEBUG)
+                            count += 1
+                            time.sleep(1)  # Sleep for 1 second between each output                        
                         
                     self.log.log_message("Sleeping", LogLevel.DEBUG)
                     time.sleep(15)

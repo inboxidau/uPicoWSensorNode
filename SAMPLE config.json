@@ -1,0 +1,13 @@
+{
+    "WIFI_SSID": "your 2.4 Ghz SID",
+    "WIFI_PASSWORD": "your WiFi Password",
+    "MQTT_BROKER": "your homebridge.local",
+    "MQTT_PORT": 8883,
+    "MQTT_TOPIC_temperature":  "weatherstn/picodev_board/temperature",
+    "MQTT_TOPIC_humidity":     "weatherstn/picodev_board/humidity",
+    "MQTT_TOPIC_airPressure":  "weatherstn/picodev_board/airPressure",
+    "MQTT_USERNAME": "your MQTT username",
+    "MQTT_PASSWORD": "your MQTT password",
+    "MQTT_CA_CERTS": "your MQTT.crt file",
+    "MAKERVERSE_NANO_POWER_TIMER_HAT": "False"
+}
