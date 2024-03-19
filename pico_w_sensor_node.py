@@ -9,7 +9,11 @@ from umqtt.robust import MQTTClient
 POWERDOWN = machine.Pin(22, machine.Pin.OUT) # setting this pin High will remove power, and wait for the next interval for Makerverse Nano Power Timer HAT
 
 class UPicoWSensorNode:
-    
+
+    STATIC_NODE_RESTART_DELAY = 60               # Used to delay restraing main() on an unhandled exception
+    STATIC_NODE_LOG_LEVEL = LogLevel.INFO        # Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
+    STATIC_NODE_SENSE_REPEAT_DELAY = 300         # Used to designate the delay in seconds between sensor reading
+
     # Function to write data to a JSON file
     def write_to_json(self, file_path, data):
         try:
@@ -19,7 +23,7 @@ class UPicoWSensorNode:
             self.log.log_message("Data successfully written to {}".format(file_path), LogLevel.DEBUG)
         except Exception as e:
             exception_details = repr(e)
-            self.log.log_message("write_to_json: {} ".format(exception_details), LogLevel.DEBUG)
+            self.log.log_message("{}.write_to_json: {} ".format(self.__class__.__name__, exception_details), LogLevel.DEBUG)
     
     def connect_broker(self):
         self.log.log_message("{}.connect_broker() called".format( self.__class__.__name__ ), LogLevel.DEBUG)
@@ -37,7 +41,13 @@ class UPicoWSensorNode:
         return None
 
     def disconnect_broker(self):
-        self.mqtt_client.disconnect()
+        try:
+            self.mqtt_client.disconnect()
+        except Exception as e:
+            error_message = "{}.disconnect_broker() Error during disconnect_broker: {}".format(self.__class__.__name__,e)
+            print(error_message)
+            raise RuntimeError(error_message, LogLevel.ERROR)
+        
         return None
     
     def initialize_Sensors(self):
@@ -66,7 +76,8 @@ class UPicoWSensorNode:
                 sleep(1)
 
             if self.wifi.status() != 3:
-                raise RuntimeError('network re-connection failed.', LogLevel.ERROR)
+                self.log.log_message('{}.connect_to_wifi() {} network connection failed {}'.format(self.__class__.__name__,self.WIFI_SSID), LogLevel.ERROR)
+                raise RuntimeError('network connection failed.', LogLevel.ERROR)
             else:
                 self.log.log_message("Reconnected to {} channel {} with address {}".format(self.WIFI_SSID,self.wifi.config('channel'), self.wifi.ifconfig()[0]), LogLevel.INFO)
 
@@ -84,7 +95,7 @@ class UPicoWSensorNode:
             return config_data
         except Exception as e:
             exception_details = repr(e)
-            self.log.log_message("Unable to load config {} {}".format(file_path,exception_details), LogLevel.ERROR)
+            self.log.log_message("{}.load_config() Unable to load config {} {}".format(self.__class__.__name__ , file_path,exception_details), LogLevel.ERROR)
             raise ValueError(exception_details)
             return None
     
@@ -107,7 +118,7 @@ class UPicoWSensorNode:
             self.MQTT_CA_CERTS = self.config.get('MQTT_CA_CERTS', '')
             self.MAKERVERSE_NANO_POWER_TIMER_HAT = self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT', False)
             self.LOG_SENSOR_DATA = self.config.get('LOG_SENSOR_DATA', 'False')
-            self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'aaaaaaaaaaaaaaaaaaaa.dat')
+            self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'main.dat')
             self.log.log_message("SENSOR LOG {} {}".format(self.LOG_SENSOR_DATA,self.LOG_SENSOR_DATA_FILE), LogLevel.DEBUG)
             
             self.log.log_message("UPicoWSensorNode Config values applied", LogLevel.DEBUG)   
@@ -132,7 +143,7 @@ class UPicoWSensorNode:
             time.sleep(1)
 
         if self.wifi.status() != 3:
-            raise RuntimeError('network connection failed.', LogLevel.ERROR)
+            raise RuntimeError('network connection failed. Status {}'.format(self.wifi.status()), LogLevel.ERROR)
         else:
             self.log.log_message("Connected to {} channel {} with address {}".format(self.WIFI_SSID,self.wifi.config('channel'), self.wifi.ifconfig()[0]))
         
@@ -167,14 +178,14 @@ class UPicoWSensorNode:
                             count += 1
                             time.sleep(1)  # Sleep for 1 second between each output                        
                         
-                    self.log.log_message("Sleeping", LogLevel.DEBUG)
-                    time.sleep(15)
+                    self.log.log_message("Sleeping {} seconds.".format(UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY), LogLevel.INFO)
+                    time.sleep(UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY)
                     
             except Exception as e:
                 #sys.print_exception(e)  # Print basic exception information
-                exception_details = repr(e)
+                exception_details = "{}.main() {}".format(self.__class__.__name__ ,repr(e))
                 self.log.log_message(exception_details, LogLevel.ERROR)
 
-            self.log.log_message("Sleeping", LogLevel.DEBUG)
-            time.sleep(15)         
+            self.log.log_message("{}.Main() Sleeping on exception recovery".format(self.__class__.__name__ ), LogLevel.DEBUG)
+            time.sleep(UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY)         
         #         self.log.log_message("Main method of UPicoWSensorNode called")
