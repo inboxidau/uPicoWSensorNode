@@ -14,11 +14,11 @@ class AtmophericSensorNode(UPicoWSensorNode):
             self.MQTT_TOPIC_temperature = self.config.get('MQTT_TOPIC_temperature', '')
             self.MQTT_TOPIC_humidity = self.config.get('MQTT_TOPIC_humidity', '')
             self.MQTT_TOPIC_airPressure = self.config.get('MQTT_TOPIC_airPressure', '')
-            self.log.log_message("{} Config values applied".format(self.__class__.__name__), LogLevel.INFO)           
+            self.log.log_message(f"{self.__class__.__name__} Config values applied", LogLevel.INFO)
         else:
-            self.log.log_message("{} Failed to load config file.".format(self.__class__.__name__ ),LogLevel.ERROR)
+            self.log.log_message(f"{self.__class__.__name__} Failed to load config file.", LogLevel.ERROR)
             
-        self.log.log_message("{} initialized.".format(self.__class__.__name__ ), LogLevel.DEBUG)
+        self.log.log_message(f"{self.__class__.__name__} initialized.", LogLevel.DEBUG)
         
         from PiicoDev_BME280 import PiicoDev_BME280
         self.sensor = PiicoDev_BME280() # instantiate the sensor
@@ -61,20 +61,21 @@ class AtmophericSensorNode(UPicoWSensorNode):
     def post_sensor_data(self):
         try:
             self.log_message("post_sensor_data", LogLevel.INFO) 
-            self.log_message('{}.post_sensor_data() {} to >{}'.format(self.__class__.__name__, self.sensor_data["tempC"],self.MQTT_TOPIC_temperature), LogLevel.DEBUG)  
-            self.mqtt_client.publish(self.MQTT_TOPIC_temperature, '{}'.format(self.sensor_data["tempC"]))
+            
+            self.log_message(f"{self.__class__.__name__}.post_sensor_data() {self.sensor_data['tempC']} to >{self.MQTT_TOPIC_temperature}", LogLevel.DEBUG)
+            self.mqtt_client.publish(self.MQTT_TOPIC_temperature, f"{self.sensor_data['tempC']}")
 
-            self.log_message('{}.post_sensor_data() {} to >{}'.format(self.__class__.__name__, self.sensor_data["pres_hPa"],self.MQTT_TOPIC_airPressure), LogLevel.DEBUG)  
-            self.mqtt_client.publish(self.MQTT_TOPIC_airPressure, '{}'.format(int(self.sensor_data["pres_hPa"])))
+            self.log_message(f"{self.__class__.__name__}.post_sensor_data() {self.sensor_data['pres_hPa']} to >{self.MQTT_TOPIC_airPressure}", LogLevel.DEBUG)
+            self.mqtt_client.publish(self.MQTT_TOPIC_airPressure, f"{int(self.sensor_data['pres_hPa'])}")
 
-            self.log_message('{}.post_sensor_data() {} to >{}'.format(self.__class__.__name__, self.sensor_data["humRH"],self.MQTT_TOPIC_humidity), LogLevel.DEBUG)  
-            self.mqtt_client.publish(self.MQTT_TOPIC_humidity, '{}'.format(int(self.sensor_data["humRH"])))
+            self.log_message(f"{self.__class__.__name__}.post_sensor_data() {self.sensor_data['humRH']} to >{self.MQTT_TOPIC_humidity}", LogLevel.DEBUG)
+            self.mqtt_client.publish(self.MQTT_TOPIC_humidity, f"{int(self.sensor_data['humRH'])}")
             
             if self.LOG_SENSOR_DATA == "True":
                 self.write_to_json(self.LOG_SENSOR_DATA_FILE, self.sensor_data)
             
         except Exception as e:
-            self.log.log_message("{}.post_sensor_data() {}".format( self.__class__.__name__ , str(e)), LogLevel.ERROR)
+            self.log.log_message(f"{self.__class__.__name__}.post_sensor_data() {str(e)}", LogLevel.ERROR)
         return None
 
     def read_sensor_data(self):
@@ -83,9 +84,9 @@ class AtmophericSensorNode(UPicoWSensorNode):
             # obtain sensor data
             self.sensor_data["tempC"], self.sensor_data["presPa"], self.sensor_data["humRH"] = self.sensor.values() # read all data from the sensor
             self.sensor_data["pres_hPa"]= self.sensor_data["presPa"] / 100 # convert air pressurr Pascals -> hPa (or mbar, if you prefer)
-            self.log_message("{} °C  {} hPa {} %RH".format(self.sensor_data["tempC"], self.sensor_data["pres_hPa"], self.sensor_data["humRH"]), LogLevel.INFO)                
+            self.log_message(f"{self.sensor_data['tempC']} °C  {self.sensor_data['pres_hPa']} hPa {self.sensor_data['humRH']} %RH", LogLevel.INFO)
         except Exception as e:
-            self.log_message("ERROR: {}.read_sensor_data() {} ".format( self.__class__.__name__ , str(e)), LogLevel.ERROR)
+            self.log_message(f"ERROR: {self.__class__.__name__}.read_sensor_data() {str(e)}", LogLevel.ERROR)
         return None
 
 
@@ -101,10 +102,10 @@ if __name__ == "__main__":
             log.log_message("main.py starting myNode", LogLevel.INFO)
             myNode.main()
         except Exception as e:
-            print("CONSOLE: exception in myNode ({})".format(e))
-            log.log_message("main.py {} ".format(str(e)), LogLevel.ERROR)
+            print(f"CONSOLE: exception in myNode ({e})")
+            log.log_message(f"main.py {str(e)}", LogLevel.ERROR)
             
-        print("CONSOLE: retry in {}.".format(myNode.STATIC_NODE_RESTART_DELAY))
-        log.log_message("main.py retry in {} seconds.".format(myNode.STATIC_NODE_RESTART_DELAY), LogLevel.INFO)
+        print(f"CONSOLE: retry in {myNode.STATIC_NODE_RESTART_DELAY}.")
+        log.log_message(f"main.py retry in {myNode.STATIC_NODE_RESTART_DELAY} seconds.", LogLevel.INFO)
         time.sleep(myNode.STATIC_NODE_RESTART_DELAY)
 #
