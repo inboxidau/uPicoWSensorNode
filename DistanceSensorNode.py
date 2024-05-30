@@ -80,11 +80,3 @@ class DistanceSensorNode(UPicoWSensorNode):
         except Exception as e:
             self.log.log_message("ERROR: {}.read_sensor_data() {} ".format( self.__class__.__name__ , str(e)), LogLevel.ERROR)
         return None
-
-
-log = URollingAppenderLog("DistanceSensorNode.log", max_file_size_bytes=1024, max_backups=1, print_messages=True, log_level=LogLevel.DEBUG)
-
-# Instantiate a SensorNode subclassed from UPicoWSensorNode and call its main method
-if __name__ == "__main__":
-    myNode = DistanceSensorNode(log=log, config_path="config.json")
-    myNode.main()
