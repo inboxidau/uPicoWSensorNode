@@ -16,41 +16,6 @@ class DistanceSensorNode(UPicoWSensorNode):
         
         from PiicoDev_VL53L1X import PiicoDev_VL53L1X
         self.distance_sensor = PiicoDev_VL53L1X() # initialise the sensor
-        
-
-#     def subclass_method(self):
-#         self.log.log_message("INFO: "+ self.__class__.__name__ +" method called")
-
-
-# default method values
-#     def main(self):
-#         # Call the main method of the ParentClass
-#         super().main()
-#         self.log.log_message("INFO: Main method of "+ self.__class__.__name__ +" called")
-#
-#     def connect_broker(self):
-#         self.log.log_message("INFO: connect_broker method of "+ self.__class__.__name__ +" called")
-#         return None
-#     
-#     def initialize_broker(self):
-#         self.log.log_message("INFO: initialize_broker method of "+ self.__class__.__name__ +" called")
-#         return None    
-# 
-#     def disconnect_broker(self):
-#         self.log.log_message("INFO: disconnect_broker method of "+ self.__class__.__name__ +" called")
-#         return None
-#     
-#     def initialize_Sensors(self):
-#         self.log.log_message("INFO: initialize_Sensors method of "+ self.__class__.__name__ +" called")
-#         return None
-#     
-#     def read_sensor_data(self):
-#         self.log.log_message("INFO: read_sensor_data method of "+ self.__class__.__name__ +" called")
-#         return None
-#     
-#     def post_sensor_data(self):
-#         self.log.log_message("INFO: post_sensor_data method of "+ self.__class__.__name__ +" called")
-#         return None        
 
 
     def post_sensor_data(self):
