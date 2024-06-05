@@ -115,6 +115,17 @@ class UPicoWSensorNode:
             self.log_message(f"{self.__class__.__name__}.load_config() Unable to load config {file_path} {exception_details}", LogLevel.ERROR)
             raise ValueError(exception_details)
             return None
+        
+    def force_boolean(self, json_value, key="Unspecified"):
+        # Check if the JSON value is a string
+        if isinstance(json_value, str):
+            self.log_message("String value detected and replaced with a boolean for key= {}".format(key), LogLevel.ERROR) 
+            if json_value.lower() == "true":
+                return True
+            else:
+                return False
+        else:
+            return json_value
 
     def __init__(self, log, config_path='UPicoWSensorNode.json'):
         self.mqtt_client = None
@@ -133,8 +144,8 @@ class UPicoWSensorNode:
             self.MQTT_USERNAME = self.config.get('MQTT_USERNAME', '')
             self.MQTT_PASSWORD = self.config.get('MQTT_PASSWORD', 0)
             self.MQTT_CA_CERTS = self.config.get('MQTT_CA_CERTS', '')
-            self.MAKERVERSE_NANO_POWER_TIMER_HAT = self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT', "False")
-            self.LOG_SENSOR_DATA = self.config.get('LOG_SENSOR_DATA', 'False')
+            self.MAKERVERSE_NANO_POWER_TIMER_HAT= self.force_boolean(self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT', "False"),'MAKERVERSE_NANO_POWER_TIMER_HAT')
+            self.LOG_SENSOR_DATA = self.force_boolean(self.config.get('LOG_SENSOR_DATA', 'False'),'LOG_SENSOR_DATA')
             self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'main.dat')
             self.log_message(f"SENSOR LOG {self.LOG_SENSOR_DATA} {self.LOG_SENSOR_DATA_FILE}", LogLevel.DEBUG)
             
