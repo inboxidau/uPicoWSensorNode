@@ -16,7 +16,7 @@ POWERDOWN = machine.Pin(22, machine.Pin.OUT) # setting this pin High will remove
 class UPicoWSensorNode:
     
     STATIC_NODE_LOG_LEVEL = LogLevel.DEBUG      # Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
-    STATIC_NODE_RESTART_DELAY = 60              # Used to delay restraing main() on an unhandled exception
+    STATIC_NODE_RESTART_DELAY = 60              # Used to delay restarting main() on an unhandled exception
     STATIC_NODE_SENSE_REPEAT_DELAY = 300        # Used to designate the delay in seconds between sensor reading
 
     STATIC_WIFI_MAX_RETRIES = 3                 # Used to determine how many time we retry to establish wi-fi connections

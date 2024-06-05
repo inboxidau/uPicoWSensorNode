@@ -1,7 +1,7 @@
 from pico_w_sensor_node import UPicoWSensorNode
 from rolling_appender_log import URollingAppenderLog, LogLevel
 
-class AtmophericSensorNode(UPicoWSensorNode):
+class AtmosphericSensorNode(UPicoWSensorNode):
     
     # Used to delay restraing main() on an unhandled exception STATIC_NODE_RESTART_DELAY = 60
     STATIC_NODE_LOG_LEVEL = LogLevel.INFO       # Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
