@@ -8,7 +8,7 @@ class AtmosphericSensorNode(UPicoWSensorNode):
     
     POST_SENSOR_DATA_FORMAT = "{}.post_sensor_data() {} to >{}"
     
-    def __init__(self, log, config_path='UPicoWSensorNode.json'):
+    def __init__(self, log, config_path='AtmosphericSensorNode.json'):
         super().__init__(log, config_path)
         if self.config:
             self.MQTT_TOPIC_temperature = self.config.get('MQTT_TOPIC_temperature', '')
