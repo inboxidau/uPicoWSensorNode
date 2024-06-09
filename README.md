@@ -2,7 +2,26 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=inboxidau_uPicoWSensorNode&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=inboxidau_uPicoWSensorNode)
 
- A  micropython class used to create sensor devices. Originally intended to send to MQTT topics for use with HomeBridge devices running on Raspberry Pi Zero machines.
+This project is designed to read data from sensors and transmit it to MQTT topics using Raspberry Pi Pico W micro controllers. The data is then integrated with [MQTTThing](https://github.com/arachnetech/homebridge-mqttthing), allowing seamless communication with [HomeBridge](https://github.com/homebridge/homebridge) devices operating on Raspberry Pi Zero machines.
+
+```mermaid
+graph LR
+    subgraph RaspberryPiPicoW["Raspberry Pi PicoW"]
+        A[Sensor Node] -->|read data| B[UPicoWSensorNode]
+    end
+
+    subgraph PiZero["Pi Zero"]
+        B -->|post values over WiFi| D[MQTT] <--> |poll values| F
+        subgraph HomeBridge["HomeBridge"]
+            F[MQTTThing]
+        end
+        
+    end
+
+    style RaspberryPiPicoW fill:#333,stroke:#333,stroke-width:2px
+    style PiZero fill:#333,stroke:#333,stroke-width:2px
+    style HomeBridge fill:#444,stroke:#333,stroke-width:2px
+```
 
  It has been built with flexibility in mind for re-purposing to use cases requiring a similar WiFi connectivity and sensor/device lifecycle.
 
@@ -15,13 +34,18 @@ The structure of a uPicoWSensor node will be straight forward for those familiar
 As an example I have included an AtmosphericSensorNode class, you can use this if appropriate but more than likely you will want to write a class for the sensor(s) you intend to use.
 
 ```mermaid
-flowchart TD
-    A[main.py] -->|instantiate a sensor node| B(AtmosphericSensorNode)
-    B -->|inheriting from| C(UPicoWSensorNode)
+graph TD
+    subgraph RaspberryPiPicoW["uPicoWSensor structure"]
+        A[main.py] -->|instantiate a sensor node| B(AtmosphericSensorNode)
+        B -->|inheriting from| C(UPicoWSensorNode)
+        C -->|import| D(Sensor Libraries)
+    end
+    style RaspberryPiPicoW fill:#333,stroke:#333,stroke-width:2px
+
 ```
 
 A **main.py** file is used to load the custom sensor node when the device powers up. It sets up out logging file and implements rudimentary restart logic with a configurable restart delay.
-> NOTE: The project makes use of  [URollingAppenderLog](https://github.com/inboxidau/uRollingAppenderLog) which is available as a separate public repository.
+> NOTE: The project makes use of  [URollingAppenderLog](https://github.com/inboxidau/uRollingAppenderLog)
 
 The custom sensor node file is likely going to be the file which you need to write for yourself, it will inherit all of the core functionally of a UPicoWSensorNode. In the included example, **AtmosphericSensorNode.py**, we perform some tasks specific to a [**PiicoDev_BME280**](https://core-electronics.com.au/guides/piicodev-atmospheric-sensor-bme280-raspberry-pi-guide/) sensor and leave the heavy lifting to **UPicoWSensorNode.py**
 
@@ -142,19 +166,39 @@ Installation is just a matter of downloading the project files, libraries and co
 
 When you have sensors and power connected then the pico will boot up and run ad infinitum as long as power is maintained and entropy held at bay.
 
-There are a few static variable set in UPicoWSensorNode which can be overwritten in your subclass if needed.
+There are a few static variable set in UPicoWSensorNode which can be overwritten in your subclass if needed e.g. for AtmosphericSensorNode.
 
 ```python
-    STATIC_NODE_LOG_LEVEL = LogLevel.DEBUG      # Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
-    STATIC_NODE_RESTART_DELAY = 60              # Used to delay restarting main() on an unhandled exception
-    STATIC_NODE_SENSE_REPEAT_DELAY = 300        # Used to designate the delay in seconds between sensor reading
+    def __init__(self, log, config_path='AtmosphericSensorNode.json'):
+        super().__init__(log, config_path)
+        self.STATIC_NODE_LOG_LEVEL = LogLevel.DEBUG      # Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
+        self.STATIC_NODE_RESTART_DELAY = 60              # Used to delay restarting main() on an unhandled exception
+        self.STATIC_NODE_SENSE_REPEAT_DELAY = 300        # Used to designate the delay in seconds between sensor reading
 
-    STATIC_WIFI_MAX_RETRIES = 3                 # Used to determine how many time we retry to establish wi-fi connections
-    STATIC_WIFI_RETRY_DELAY = 1                 # seconds
+        self.STATIC_WIFI_MAX_RETRIES = 3                 # Used to determine how many time we retry to establish wi-fi connections
+        self.STATIC_WIFI_RETRY_DELAY = 1                 # seconds
 ```
 
 During familiarization and testing I recommend setting the log level to debug level to get the most out of the logging. It will give you a good view of the program life-cycle also detailing exception handling, sensor reads, posting to MQTT, sleeping, power up and power down if you have the hat.
 
 ```python
     STATIC_NODE_LOG_LEVEL = LogLevel.DEBUG
+```
+
+Your final deployed files will look something like:
+
+```python
+root
+├── main.py
+├── config.json
+├── AtmosphericSensorNode.p
+└── lib
+    ├── PiicoDev_Unified.py
+    ├── PiicoDev_BME280.py
+    ├── inboxidau
+    │   ├── pico_w_sensor_node.py
+    │   └── rolling_appender_log.py
+    └── umqtt
+        ├── simple.py
+        └── robust.py
 ```
