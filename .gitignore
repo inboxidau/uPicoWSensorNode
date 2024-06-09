@@ -160,3 +160,4 @@ PiicoDev_VEML6040.py
 PiicoDev_VL53L1X.py
 rolling_appender_log.py
 PiicoDev_BME280.py
+.vscode/settings.json

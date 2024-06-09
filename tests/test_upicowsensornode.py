@@ -19,7 +19,7 @@ import binascii
 
 # Insert the path to the module under test
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from rolling_appender_log import URollingAppenderLog, LogLevel
+from lib.inboxidau.rolling_appender_log import URollingAppenderLog, LogLevel
 from pico_w_sensor_node import UPicoWSensorNode
 
 class TestUPicoWSensorNode(unittest.TestCase):
