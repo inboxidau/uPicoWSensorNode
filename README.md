@@ -82,15 +82,17 @@ Setting up a uPicoWSensor node project is fairly straight forward but there are 
 1. The device will be operating on a WiFi network and, you have the **SSID** and **password**
 2. The collected information will be sent to an MQTT queue, you have **mqtt connection details** and **queue paths**
 3. The library dependencies are met
-    - [rolling_appender_log](https://github.com/inboxidau/uRollingAppenderLog)
-    - sensor libraries e.g. the AtmosphericSensorNode example makes use of  [PiicoDev_BME280](https://github.com/CoreElectronics/CE-PiicoDev-BME280-MicroPython-Module), [PiicoDev_Unified.py](https://github.com/CoreElectronics/CE-PiicoDev-Unified)
-    - micropython libraries in lib\umqtt
+    - lib/inboxidau/[rolling_appender_log](https://github.com/inboxidau/uRollingAppenderLog)
+    - sensor libraries e.g. the AtmosphericSensorNode example makes use of  lib/
+        - [PiicoDev_BME280](https://github.com/CoreElectronics/CE-PiicoDev-BME280-MicroPython-Module)
+        - [PiicoDev_Unified.py](https://github.com/CoreElectronics/CE-PiicoDev-Unified)
+    - micropython libraries in lib/umqtt
         - [umqtt.simple](https://github.com/micropython/micropython-lib/tree/master/micropython/umqtt.simple)
         - [umqtt.robust](https://github.com/micropython/micropython-lib/tree/master/micropython/umqtt.robust)
 
 When dependencies are met then you then need to
 
-1. Create your JSON config file and add all environmental key pairs e.g. config.json or AtmosphericSensorNode.json
+1. Create your JSON config file and add all environmental key pairs e.g. **config.json** or **AtmosphericSensorNode.json**
 
     ```json
     {
@@ -104,7 +106,8 @@ When dependencies are met then you then need to
     "MQTT_USERNAME": "test MQTT username",
     "MQTT_PASSWORD": "test MQTT password",
     "MQTT_CA_CERTS": "test MQTT.crt file",
-    "MAKERVERSE_NANO_POWER_TIMER_HAT": "False"
+    "LOG_SENSOR_DATA": 0,
+    "MAKERVERSE_NANO_POWER_TIMER_HAT": 0
     }
     ```
 
@@ -130,7 +133,7 @@ When dependencies are met then you then need to
         - reads sensor data and processes into the appropriate collected data format
     - write **def post_sensor_data(self):** which
         - sends collected data to MQTT
-3. Add imports to main.py for your new class and instantiate as myNode **using your selected config file name e.g. config.json or AtmosphericSensorNode.json** file.
+3. Add imports to main.py for your new class and instantiate as myNode **using your selected config file name e.g. **config.json** or **AtmosphericSensorNode.json**
 4. Configure the URollingAppenderLog values on the global variable **log**
 
 ## Installing onto a Raspberry [**Pi Pico W**](https://core-electronics.com.au/raspberry-pi/pico.html)
