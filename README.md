@@ -191,7 +191,7 @@ Your final deployed files will look something like:
 root
 ├── main.py
 ├── config.json
-├── AtmosphericSensorNode.p
+├── AtmosphericSensorNode.py
 └── lib
     ├── PiicoDev_Unified.py
     ├── PiicoDev_BME280.py
