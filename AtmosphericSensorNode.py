@@ -1,5 +1,5 @@
-from .lib.piicoDev.pico_w_sensor_node import UPicoWSensorNode
-from .lib.inboxidau.rolling_appender_log import URollingAppenderLog, LogLevel
+from lib.inboxidau.pico_w_sensor_node import UPicoWSensorNode
+from lib.inboxidau.rolling_appender_log import URollingAppenderLog, LogLevel
 
 class AtmosphericSensorNode(UPicoWSensorNode):
     
@@ -20,7 +20,7 @@ class AtmosphericSensorNode(UPicoWSensorNode):
             
         self.log.log_message(f"{self.__class__.__name__} initialized.", LogLevel.DEBUG)
         
-        from lib.piicoDev.PiicoDev_BME280 import PiicoDev_BME280
+        from PiicoDev_BME280 import PiicoDev_BME280
         self.sensor = PiicoDev_BME280() # instantiate the sensor
 
     def post_sensor_data(self):
@@ -51,7 +51,7 @@ class AtmosphericSensorNode(UPicoWSensorNode):
             self.log_message(log_message, LogLevel.DEBUG)            
             self.mqtt_client.publish(self.MQTT_TOPIC_humidity, f"{int(self.sensor_data['humRH'])}")
             
-            if self.LOG_SENSOR_DATA == "True":
+            if self.LOG_SENSOR_DATA == 1:
                 self.write_to_json(self.LOG_SENSOR_DATA_FILE, self.sensor_data)
             
         except Exception as e:

@@ -1,5 +1,5 @@
 from lib.inboxidau.rolling_appender_log import URollingAppenderLog, LogLevel
-from pico_w_sensor_node import UPicoWSensorNode
+from lib.inboxidau.pico_w_sensor_node import UPicoWSensorNode
 import time
 from AtmosphericSensorNode import AtmosphericSensorNode
 
