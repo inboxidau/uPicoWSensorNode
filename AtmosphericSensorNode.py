@@ -20,7 +20,7 @@ class AtmosphericSensorNode(UPicoWSensorNode):
             
         self.log.log_message(f"{self.__class__.__name__} initialized.", LogLevel.DEBUG)
         
-        from PiicoDev_BME280 import PiicoDev_BME280
+        from lib.PiicoDev_BME280 import PiicoDev_BME280
         self.sensor = PiicoDev_BME280() # instantiate the sensor
 
     def post_sensor_data(self):

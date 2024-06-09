@@ -20,7 +20,7 @@ class DistanceSensorNode(UPicoWSensorNode):
             
         self.log.log_message("{} initialized.".format(self.__class__.__name__ ), LogLevel.DEBUG)
         
-        from PiicoDev_VL53L1X import PiicoDev_VL53L1X
+        from lib.PiicoDev_VL53L1X import PiicoDev_VL53L1X
         self.distance_sensor = PiicoDev_VL53L1X() # initialise the sensor
 
 
