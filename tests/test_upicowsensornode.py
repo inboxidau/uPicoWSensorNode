@@ -42,9 +42,9 @@ class TestUPicoWSensorNode(unittest.TestCase):
         log.debug( "Enter test_load_config" )
         expected_time = (2024, 6, 4, 12, 30, 0, 0, 0)
         with unittest.mock.patch('utime.localtime', return_value=expected_time):
-            #config = self.node.load_config('test_config.json')
+            self.node.config = self.node.load_config('test_config.json')
             log.debug( "test_load_config config= %r",  self.node.config )
-            guid = self.node.generate_guid()
+            self.node.guid = self.node.generate_guid()
             log.debug( "test_load_config guid= %r",  self.node.guid )
 
         self.assertEqual(self.node.config, {
