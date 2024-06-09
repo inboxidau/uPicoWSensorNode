@@ -1,11 +1,11 @@
-from rolling_appender_log import URollingAppenderLog, LogLevel
-from pico_w_sensor_node import UPicoWSensorNode
+from lib.inboxidau.rolling_appender_log import URollingAppenderLog, LogLevel
+from lib.inboxidau.pico_w_sensor_node import UPicoWSensorNode
 import time
-from AtmophericSensorNode import AtmophericSensorNode
+from AtmosphericSensorNode import AtmosphericSensorNode
 
-log = URollingAppenderLog("AtmophericSensorNode.log", max_file_size_bytes=1024, max_backups=10, print_messages=True, log_level=AtmophericSensorNode.STATIC_NODE_LOG_LEVEL)
+log = URollingAppenderLog("AtmosphericSensorNode.log", max_file_size_bytes=1024, max_backups=10, print_messages=True, log_level=AtmosphericSensorNode.STATIC_NODE_LOG_LEVEL)
 
-myNode = AtmophericSensorNode(log=log, config_path="config.json")
+myNode = AtmosphericSensorNode(log=log, config_path="config.json")
 
 while True:
     try:
