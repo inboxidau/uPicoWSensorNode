@@ -166,7 +166,7 @@ Installation is just a matter of downloading the project files, libraries and co
 
 When you have sensors and power connected then the pico will boot up and run ad infinitum as long as power is maintained and entropy held at bay.
 
-There are a few static variable set in UPicoWSensorNode which can be overwridden in your subclass if needed e.g. for AtmosphericSensorNode.
+There are a few static variable set in UPicoWSensorNode which can be overridden in your subclass if needed e.g. for AtmosphericSensorNode.m
 
 ```python
     def __init__(self, log, config_path='AtmosphericSensorNode.json'):
