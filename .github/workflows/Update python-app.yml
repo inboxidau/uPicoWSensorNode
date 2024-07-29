@@ -1,4 +1,4 @@
-name: Pylint
+name: flake8 lint
 
 on:
   push:
