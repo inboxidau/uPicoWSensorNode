@@ -33,7 +33,7 @@ class DistanceSensorNode(UPicoWSensorNode):
             log_message = self.POST_SENSOR_DATA_FORMAT.format(
                 self.__class__.__name__,
                 self.sensor_data["distance"],
-                self.MQTT_TOPIC_temperature
+                self.MQTT_TOPIC_distance
              )
             self.log_message(log_message, LogLevel.DEBUG)
             self.mqtt_client.publish(self.MQTT_TOPIC_distance, f"{self.sensor_data['distance']}")
@@ -41,7 +41,7 @@ class DistanceSensorNode(UPicoWSensorNode):
             log_message = self.POST_SENSOR_DATA_FORMAT.format(
                 self.__class__.__name__,
                 self.sensor_data["occupancy"],
-                self.MQTT_TOPIC_temperature)
+                self.MQTT_TOPIC_occupancy)
 
             self.log_message(log_message, LogLevel.DEBUG)
             self.mqtt_client.publish(self.MQTT_TOPIC_occupancy, f"{self.sensor_data['occupancy']}")
