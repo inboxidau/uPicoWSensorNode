@@ -16,17 +16,17 @@ class LogOperationException(Exception):
 class URollingAppenderLog:
     def __init__(self, log_file, max_file_size_bytes=4 * 20,
                  max_backups=5, print_messages=False, log_level=LogLevel.INFO):
-        # if log_level is set to LogLevel.DEBUG then the class will emit its own
-        # debug information as "CONSOLE:" only to stdout
+        # if log_level is set to LogLevel.DEBUG then the class will emit
+        #  its own debug information as "CONSOLE:" only to stdout
         if max_backups < 0:
-            raise ValueError("max_backups must be greater than or equal to zero.")
+            raise ValueError("max_backups must be greater than or equal to zero.")  # noqa: E501
         self.log_file = log_file
         self.max_file_size_bytes = max_file_size_bytes
         self.max_backups = max_backups
         self.print_messages = print_messages
         self.log_level = log_level
 
-    def log_message(self, message, level=LogLevel.INFO, tid="0000-00-00T00:00:00Z"):
+    def log_message(self, message, level=LogLevel.INFO, tid="0000-00-00T00:00:00Z"):  # noqa: E501
         display_message = False
 
         prefix_mapping = {
@@ -39,7 +39,8 @@ class URollingAppenderLog:
 
         if level == LogLevel.ERROR or \
             (self.log_level == LogLevel.INFO and level == LogLevel.INFO) or \
-                (self.log_level == LogLevel.DEBUG and level in (LogLevel.DEBUG, LogLevel.INFO)):
+                (self.log_level == LogLevel.DEBUG and
+                 level in (LogLevel.DEBUG, LogLevel.INFO)):
             display_message = True
         else:
             display_message = False
@@ -50,11 +51,11 @@ class URollingAppenderLog:
             if self.print_messages is True:
                 print(message)
 
-            self.existing_backups = [f for f in os.listdir() if f.startswith(f"{self.log_file}.")]
+            self.existing_backups = [f for f in os.listdir() if f.startswith(f"{self.log_file}.")]  # noqa: E501
 
             # Check if the log file exists and if its size exceeds the limit
             if self.log_file in os.listdir():
-                log_file_size = os.stat(self.log_file)[6]  # Index 6 corresponds to the size in the os.stat result
+                log_file_size = os.stat(self.log_file)[6]    # noqa: E501 Index 6 corresponds to the size in the os.stat result
                 if log_file_size > self.max_file_size_bytes:
                     # Roll over backups if the maximum number is reached
                     self.roll_over_backups()
@@ -85,7 +86,7 @@ class URollingAppenderLog:
 
     def _delete_all_backups(self):
         # Delete all existing backup files
-        for backup_file in [f for f in os.listdir() if f.startswith(f"{self.log_file}.")]:
+        for backup_file in [f for f in os.listdir() if f.startswith(f"{self.log_file}.")]:  # noqa: E501
             self._print_console_message(f"remove {backup_file}")
             os.remove(backup_file)
         self.existing_backups = []
@@ -93,14 +94,14 @@ class URollingAppenderLog:
     def _remove_extra_backups(self):
         # Remove extra backups if the number exceeds max_backups
         while len(self.existing_backups) >= self.max_backups:
-            largest_backup = max(self.existing_backups, key=lambda x: int(x.split('.')[-1]))
+            largest_backup = max(self.existing_backups, key=lambda x: int(x.split('.')[-1]))  # noqa: E501
             self._print_console_message(f"remove {largest_backup}")
             os.remove(largest_backup)
             self.existing_backups.remove(largest_backup)
 
     def _rename_existing_backups(self):
         # Rename existing backups in descending order
-        for backup_index in sorted(range(1, self._get_next_backup_index()), reverse=True):
+        for backup_index in sorted(range(1, self._get_next_backup_index()), reverse=True):  # noqa: E501
             old_backup = f"{self.log_file}.{backup_index}"
             new_backup = f"{self.log_file}.{backup_index + 1}"
             self._print_console_message(f"rename {old_backup} to {new_backup}")
@@ -108,12 +109,12 @@ class URollingAppenderLog:
 
     def _rename_current_log_file(self):
         # Rename the current log file
-        self._print_console_message(f"rename {self.log_file} to {self.log_file}.1")
+        self._print_console_message(f"rename {self.log_file} to {self.log_file}.1")  # noqa: E501
         os.rename(self.log_file, f"{self.log_file}.1")
 
     def _update_existing_backups_list(self):
         # Adjust the list of existing backups after renaming
-        self.existing_backups = [f"{self.log_file}.{i}" for i in range(1, self._get_next_backup_index())]
+        self.existing_backups = [f"{self.log_file}.{i}" for i in range(1, self._get_next_backup_index())]  # noqa: E501
 
     def _handle_rotation_error(self, e):
         error_message = f"Error during backup rotation: {e}"

@@ -1,4 +1,4 @@
-from lib.inboxidau.rolling_appender_log import LogLevel
+from lib.inboxidau.rolling_appender_log import LogLevel  # type: ignore
 import ujson  # type: ignore # used to load config data
 import ubinascii  # type: ignore # used to generate a GUID
 import machine  # type: ignore
@@ -40,29 +40,25 @@ class UPicoWSensorNode:
         try:
             ntptime.settime()  # Update the system time using NTP
             current_time_utc = utime.localtime()
-            message = (
-                "CONSOLE: SET current time utc: "
-                f"{current_time_utc[3]:02d}:"
-                f"{current_time_utc[4]:02d}:"
-                f"{current_time_utc[5]:02d}"
-            )
+
+            hours = current_time_utc[3]
+            minutes = current_time_utc[4]
+            seconds = current_time_utc[5]
+            message = f"CONSOLE: SET current time utc: {hours:02d}:{minutes:02d}:{seconds:02d}"  # noqa: E501
+
             self.log_message(message, LogLevel.INFO)
         except Exception as e:
             exception_details = repr(e)
-            self.log_message(f"{self.__class__.__name__}.set_network_time: {exception_details} ")
+            self.log_message(f"{self.__class__.__name__}.set_network_time: {exception_details} ")  # noqa: E501
 
-    def get_network_time(self, log_level=LogLevel.INFO):  # getting the time usually needs to be silent
+    def get_network_time(self, log_level=LogLevel.INFO):  # noqa: E501 getting the time usually needs to be silent
         iso_date = ""
         try:
             # Print the current time
             current_time_utc = utime.localtime()
             if log_level == LogLevel.DEBUG:
-                message = (
-                    "CONSOLE: SET current time utc: "
-                    f"{current_time_utc[3]:02d}:"
-                    f"{current_time_utc[4]:02d}:"
-                    f"{current_time_utc[5]:02d}"
-                )
+                message = f"CONSOLE: SET current time utc: {current_time_utc[3]:02d}:{current_time_utc[4]:02d}:{current_time_utc[5]:02d}"  # noqa: E501
+
                 self.log_message(message, LogLevel.INFO)
             # Format the current time into ISO date format
             iso_date = (
@@ -79,7 +75,8 @@ class UPicoWSensorNode:
                 print(f"CONSOLE: Get current time (ISO format): {iso_date}")
         except Exception as e:
             exception_details = repr(e)
-            print(f"{self.__class__.__name__}.get_network_time:0001 {exception_details} ", LogLevel.ERROR)
+            print(f"{self.__class__.__name__}.get_network_time:0001 {exception_details} ",  # noqa: E501
+                  LogLevel.ERROR)
 
         return iso_date
 
@@ -89,35 +86,44 @@ class UPicoWSensorNode:
             self.log_message(f"opening {file_path} ", LogLevel.DEBUG)
             with open(file_path, 'w') as file:
                 ujson.dump(data, file)
-            self.log_message(f"Data successfully written to {file_path}", LogLevel.DEBUG)
+            self.log_message(f"Data successfully written to {file_path}",
+                             LogLevel.DEBUG)
         except Exception as e:
             exception_details = repr(e)
-            self.log_message(f"{self.__class__.__name__}.write_to_json: {exception_details} ", LogLevel.DEBUG)
+            self.log_message(f"{self.__class__.__name__}.write_to_json: {exception_details} ",  # noqa: E501
+                             LogLevel.DEBUG)
 
     def connect_broker(self):
-        self.log_message(f"{self.__class__.__name__}.connect_broker() called", LogLevel.DEBUG)
-        self.log_message(f"Connecting to MQTT:{self.MQTT_BROKER}:{self.MQTT_PORT}", LogLevel.DEBUG)
+        self.log_message(f"{self.__class__.__name__}.connect_broker() called",
+                         LogLevel.DEBUG)
+        self.log_message(f"Connecting to MQTT:{self.MQTT_BROKER}:{self.MQTT_PORT}",  # noqa: E501
+                         LogLevel.DEBUG)
         self.mqtt_client.connect()
-        self.log_message(f"MQTT:{self.MQTT_BROKER}:{self.MQTT_PORT} Connected.", LogLevel.DEBUG)
+        self.log_message(f"MQTT:{self.MQTT_BROKER}:{self.MQTT_PORT} Connected.",  # noqa: E501
+                         LogLevel.DEBUG)
         return None
 
     def initialize_broker(self):
-        self.log_message(f"{self.__class__.__name__}.initialize_broker() called ", LogLevel.DEBUG)
+        self.log_message(f"{self.__class__.__name__}.initialize_broker() called ",  # noqa: E501
+                         LogLevel.DEBUG)
 #         # SSL Context
 #         ssl_params = {"ca_certs": self.MQTT_CA_CERTS}
         self.mqtt_client = MQTTClient(self.guid, self.MQTT_BROKER,
-                                      port=self.MQTT_PORT, user=self.MQTT_USERNAME,
-                                      password=self.MQTT_PASSWORD, ssl=True)
+                                      port=self.MQTT_PORT,
+                                      user=self.MQTT_USERNAME,
+                                      password=self.MQTT_PASSWORD,
+                                      ssl=True)
 
         # use device guid as MQTT Client ID
-        self.log_message(f"Broker configured MQTTClient {self.guid}", LogLevel.INFO)
+        self.log_message(f"Broker configured MQTTClient {self.guid}",
+                         LogLevel.INFO)
         return None
 
     def disconnect_broker(self):
         try:
             self.mqtt_client.disconnect()
         except Exception as e:
-            error_message = f"{self.__class__.__name__}.disconnect_broker() Error during disconnect_broker: {e}"
+            error_message = f"{self.__class__.__name__}.disconnect_broker() Error during disconnect_broker: {e}"  # noqa: E501
             print(error_message)
             raise RuntimeError(error_message, LogLevel.ERROR)
 
@@ -142,13 +148,13 @@ class UPicoWSensorNode:
         try:
             with open(file_path, 'r') as file:
                 config_data = ujson.load(file)
-            self.log_message(f"{self.__class__.__name__} config loaded", LogLevel.INFO)
+            self.log_message(f"{self.__class__.__name__} config loaded",
+                             LogLevel.INFO)
             return config_data
         except Exception as e:
             exception_details = repr(e)
             self.log_message(
-                f"{self.__class__.__name__}.load_config() Unable to load config "
-                f"{file_path} {exception_details}",
+                f"{self.__class__.__name__}.load_config() Unable to load config {file_path} {exception_details}",  # noqa: E501
                 LogLevel.ERROR
             )
 
@@ -159,7 +165,7 @@ class UPicoWSensorNode:
         # Check if the JSON value is a string
         if isinstance(json_value, str):
             self.log_message(
-                "String value detected and replaced with a boolean for key= {}".format(key),
+                f"String value detected and replaced with a boolean for key= {key}",  # noqa: E501
                 LogLevel.ERROR
             )
 
@@ -172,11 +178,11 @@ class UPicoWSensorNode:
 
     def __init__(self, log, config_path='UPicoWSensorNode.json'):
         self.mqtt_client = None
-        self.log = log                                     # Assign the log variable passed from main.py
-        self.config_path = config_path                     # Assign the path to the config file
+        self.log = log                                       # noqa: E501 Assign the log variable passed from main.py
+        self.config_path = config_path                       # noqa: E501 Assign the path to the config file
         self.config = self.load_config(config_path)
-        self.guid = self.generate_guid()                   # Assign a device ID for reference
-        self.sensor_data = {}                              # Assign an empty dictionary for sensor data
+        self.guid = self.generate_guid()                     # noqa: E501 Assign a device ID for reference
+        self.sensor_data = {}                                # noqa: E501 Assign an empty dictionary for sensor data
         if self.config:
             # Global Wi-Fi credentials
             self.WIFI_SSID = self.config.get('WIFI_SSID', '')
@@ -188,17 +194,20 @@ class UPicoWSensorNode:
             self.MQTT_PASSWORD = self.config.get('MQTT_PASSWORD', 0)
             self.MQTT_CA_CERTS = self.config.get('MQTT_CA_CERTS', '')
             # flake8 max line warning avoidance using hat_value
-            hat_value = self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT', "False")
-            self.MAKERVERSE_NANO_POWER_TIMER_HAT = self.force_boolean(hat_value, 'MAKERVERSE_NANO_POWER_TIMER_HAT')
-            self.LOG_SENSOR_DATA = self.force_boolean(self.config.get('LOG_SENSOR_DATA', 'False'), 'LOG_SENSOR_DATA')
-            self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'main.dat')
-            self.log_message(f"SENSOR LOG {self.LOG_SENSOR_DATA} {self.LOG_SENSOR_DATA_FILE}", LogLevel.DEBUG)
+            hat_value = self.config.get('MAKERVERSE_NANO_POWER_TIMER_HAT',
+                                        "False")
+            self.MAKERVERSE_NANO_POWER_TIMER_HAT = self.force_boolean(hat_value, 'MAKERVERSE_NANO_POWER_TIMER_HAT')  # noqa: E501
+            self.LOG_SENSOR_DATA = self.force_boolean(self.config.get('LOG_SENSOR_DATA', 'False'), 'LOG_SENSOR_DATA')  # noqa: E501
+            self.LOG_SENSOR_DATA_FILE = self.config.get('LOG_SENSOR_DATA_FILE', 'main.dat')  # noqa: E501
+            self.log_message(f"SENSOR LOG {self.LOG_SENSOR_DATA} {self.LOG_SENSOR_DATA_FILE}", LogLevel.DEBUG)  # noqa: E501
 
-            self.log_message("UPicoWSensorNode Config values applied", LogLevel.DEBUG)
+            self.log_message("UPicoWSensorNode Config values applied",
+                             LogLevel.DEBUG)
         else:
-            self.log_message("UPicoWSensorNode Failed to load config file.", LogLevel.ERROR)
+            self.log_message("UPicoWSensorNode Failed to load config file.",
+                             LogLevel.ERROR)
 
-        self.log_message(f"UPicoWSensorNode initialized device with guid {self.guid}", LogLevel.DEBUG)
+        self.log_message(f"UPicoWSensorNode initialized device with guid {self.guid}", LogLevel.DEBUG)  # noqa: E501
 
     def cycle_makerverse_nano_hat(self):
         if self.MAKERVERSE_NANO_POWER_TIMER_HAT == "True":
@@ -228,27 +237,27 @@ class UPicoWSensorNode:
         self.wifi.connect(self.WIFI_SSID, self.WIFI_PASSWORD)
 
     def wait_for_wifi_connection(self):
-        retries_remaining = UPicoWSensorNode.STATIC_WIFI_MAX_RETRIES
-        for _ in range(UPicoWSensorNode.STATIC_WIFI_MAX_RETRIES):
+        retries_remaining = self.STATIC_WIFI_MAX_RETRIES
+        for _ in range(self.STATIC_WIFI_MAX_RETRIES):
             if self.wifi.isconnected():
                 break
             self.log_message(
-                f'Waiting for re-connection to {self.WIFI_SSID}. '
-                f'Retries left: {retries_remaining}',
+                f'Waiting for re-connection to {self.WIFI_SSID}. Retries left: {retries_remaining}',  # noqa: E501
                 LogLevel.DEBUG
             )
-            time.sleep(UPicoWSensorNode.STATIC_WIFI_RETRY_DELAY)
+
+            time.sleep(self.STATIC_WIFI_RETRY_DELAY)
             retries_remaining -= 1
         else:
-            self.log_message(f'{self.__class__.__name__}.connect_to_wifi() '
-                             f'{self.WIFI_SSID} network connection failed',
-                             LogLevel.ERROR)
+            self.log_message(f'{self.__class__.__name__}.connect_to_wifi() {self.WIFI_SSID} network connection failed', LogLevel.ERROR)  # noqa: E501
+
             raise RuntimeError('network connection failed.', LogLevel.ERROR)
 
     def connect_to_wifi(self):
         # Check if already connected
         if self.wifi.status() != 3:
-            self.log_message(f"Connecting to {self.WIFI_SSID}...", LogLevel.INFO)
+            self.log_message(f"Connecting to {self.WIFI_SSID}...",
+                             LogLevel.INFO)
             self.initialize_wifi()
             self.wait_for_wifi_connection()
             self.set_network_time()
@@ -261,8 +270,8 @@ class UPicoWSensorNode:
         # Main Sensor Node execution
         while True:
             try:
-                self.initialize_sensors()  # ensure sensors are ready for reading
-                self.connect_broker()  # ensure that the broker client is ready for posting
+                self.initialize_sensors()  # noqa: E501 ensure sensors are ready for reading
+                self.connect_broker()      # noqa: E501 ensure that the broker client is ready for posting
                 while True:
                     # Connect to Wi-Fi if not connected
                     self.connect_to_wifi()
@@ -270,15 +279,15 @@ class UPicoWSensorNode:
                     self.execute_sensor_reading()
                     self.cycle_makerverse_nano_hat()
 
-                    self.log_message(f"Sleeping {UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY} seconds.",
+                    self.log_message(f"Sleeping {self.STATIC_NODE_SENSE_REPEAT_DELAY} seconds.",  # noqa: E501
                                      LogLevel.INFO)
-                    time.sleep(UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY)
+                    time.sleep(self.STATIC_NODE_SENSE_REPEAT_DELAY)
 
             except Exception as e:
                 # sys.print_exception(e)  # Print basic exception information
-                exception_details = f"{self.__class__.__name__}.main() {repr(e)}"
+                exception_details = f"{self.__class__.__name__}.main() {repr(e)}"  # noqa: E501
                 self.log_message(exception_details, LogLevel.ERROR)
 
-            self.log_message(f"{self.__class__.__name__}.Main() Sleeping on exception recovery", LogLevel.INFO)
-            time.sleep(UPicoWSensorNode.STATIC_NODE_SENSE_REPEAT_DELAY)
+            self.log_message(f"{self.__class__.__name__}.Main() Sleeping on exception recovery", LogLevel.INFO)  # noqa: E501
+            time.sleep(self.STATIC_NODE_SENSE_REPEAT_DELAY)
         #         self.log_message("Main method of UPicoWSensorNode called")
