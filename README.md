@@ -1,6 +1,8 @@
 # uPicoWSensorNode
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=inboxidau_uPicoWSensorNode&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=inboxidau_uPicoWSensorNode)
+[![flake8](https://github.com/inboxidau/uPicoWSensorNode/actions/workflows/Update%20python-app.yml/badge.svg)](https://github.com/inboxidau/uPicoWSensorNode/actions/workflows/Update%20python-app.yml)
+[![CodeQL](https://github.com/inboxidau/uPicoWSensorNode/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/inboxidau/uPicoWSensorNode/actions/workflows/github-code-scanning/codeql)
 
 This project is designed to read data from sensors and transmit it to MQTT topics using Raspberry Pi Pico W micro controllers. The data is then integrated with [MQTTThing](https://github.com/arachnetech/homebridge-mqttthing), allowing seamless communication with [HomeBridge](https://github.com/homebridge/homebridge) devices operating on Raspberry Pi Zero machines.
 
