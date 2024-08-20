@@ -11,6 +11,10 @@ class DistanceSensorNode(UPicoWSensorNode):
     # Used to designate the delay in seconds between sensor reading
     STATIC_NODE_SENSE_REPEAT_DELAY = 5
 
+    # Used to designate the number of sensor readings to filter
+    # before submitting in the post method.
+    STATIC_NODE_SENSE_FILTER_SIZE = 10
+
     POST_SENSOR_DATA_FORMAT = "{}.post_sensor_data() {} to >{}"
 
     def __init__(self, log, config_path='UPicoWSensorNode.json'):
@@ -36,6 +40,9 @@ class DistanceSensorNode(UPicoWSensorNode):
 
         from lib.PiicoDev_VL53L1X import PiicoDev_VL53L1X
         self.distance_sensor = PiicoDev_VL53L1X()  # initialise the sensor
+
+        from lib.inboxidau.sensor_reading_filter import DiscardExtremesFilter
+        self.filtered_distance_sensor = DiscardExtremesFilter(self.STATIC_NODE_SENSE_FILTER_SIZE)
 
     def post_sensor_data(self):
         try:
@@ -74,11 +81,15 @@ class DistanceSensorNode(UPicoWSensorNode):
         try:
             self.log_message("read_sensor_data ", LogLevel.DEBUG)
 
-            # read the distance in millimeters
-            self.sensor_data["distance"] = self.distance_sensor.read()
-            self.log.log_message(
-                f"{str(self.sensor_data['distance'])} mm",
-                LogLevel.DEBUG)
+            self.filtered_distance_sensor.reset()
+            for _ in range(self.STATIC_NODE_SENSE_FILTER_SIZE):
+
+                # read the distance in millimeters
+                distance = self.distance_sensor.read()
+                self.sensor_data["distance"] = self.filtered_distance_sensor.add_reading(distance)
+                self.log.log_message(
+                    f"{str(_)}: {str(self.sensor_data['distance'])} mm (last raw value: {str(distance)} mm)",
+                    LogLevel.DEBUG)
 
             # if object detected within nominated distance
             self.sensor_data["occupancy"] = self.sensor_data["distance"] <= self.OCCUPANCY_DISTANCE  # noqa: E501
