@@ -4,7 +4,11 @@ from lib.inboxidau.rolling_appender_log import LogLevel
 
 class AtmosphericSensorNode(UPicoWSensorNode):
 
-    # noqa: E501 # Used to delay restarting main() on an unhandled exception STATIC_NODE_RESTART_DELAY = 60
+    # noqa: E501 # Used to delay restarting main() on an unhandled exception
+    STATIC_NODE_RESTART_DELAY = 60
+    
+    # Used to designate the delay in seconds between sensor reading
+    STATIC_NODE_SENSE_REPEAT_DELAY = 60    
 
     # noqa: E501 Used to designate the log level required, normally LogLevel.INFO will suffice for a completed device
     STATIC_NODE_LOG_LEVEL = LogLevel.INFO
